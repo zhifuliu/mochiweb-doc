@@ -53,3 +53,8 @@ table {
 td {
 	padding: 3
 }
+
+/*display-control*/
+.display-control {
+	display: none;
+}
