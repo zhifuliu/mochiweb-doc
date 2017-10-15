@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>mochijson2 模块</title>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+
+<body bgcolor="white">
+    <div class="navbar"><a name="#navbar_top"></a>
+        <table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar">
+            <tr>
+                <td><a href="overview-summary.html" target="overviewFrame">概述</a></td>
+                <td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+
+    <h1>mochijson2 模块</h1>
+    <ul class="index">
+        <li><a href="#description">模块介绍</a></li>
+        <li><a href="#types">数据类型</a></li>
+        <li><a href="#index">函数索引</a></li>
+        <li><a href="#functions">函数详情</a></li>
+    </ul>
+    <!-- Yet another JSON (RFC 4627) library for Erlang. -->
+    <p class="display-control">Copyright © 2007 Mochi Media, Inc. Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation
+        the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and
+        this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+        WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+
+    <p><b>Authors:</b> Bob Ippolito (<a href="mailto:bob@mochimedia.com"><tt>bob@mochimedia.com</tt></a>).</p>
+
+    <h2><a name="description">模块介绍</a></h2>
+    <p>
+        <!-- Yet another JSON (RFC 4627) library for Erlang. mochijson2 works with binaries as strings, arrays as lists (without an {array, _}) wrapper and it only knows how to decode UTF-8 (and ASCII). -->
+        erlang 的 json 库，mochijson2 把二进制数包装成字符串，数组包装成列表，只能使用 utf-8 格式
+    </p>
+
+    <!-- JSON terms are decoded as follows (javascript -&gt; erlang): -->
+    json 对象解码过程如下：
+    <ul>
+        <li>{"key": "value"} -&gt; {struct, [{&lt;&lt;"key"&gt;&gt;, &lt;&lt;"value"&gt;&gt;}]}</li>
+        <li>["array", 123, 12.34, true, false, null] -&gt; [&lt;&lt;"array"&gt;&gt;, 123, 12.34, true, false, null]
+        </li>
+    </ul>
+    <ul>
+        <!-- <li>Strings in JSON decode to UTF-8 binaries in Erlang</li> -->
+        <li>json 中的字符串被解码成 erlang 中的 utf-8 格式的二进制数据</li>
+        <!-- <li>Objects decode to {struct, PropList}</li> -->
+        <li>对象列表解码成 {struct, PropList}</li>
+        <!-- <li>Numbers decode to integer or float</li> -->
+        <li>数组解码成整型或者浮点型</li>
+        <!-- <li>true, false, null decode to their respective terms.</li> -->
+        <li>true, false, null 解码成它们各自的项</li>
+    </ul>
+    <!-- The encoder will accept the same format that the decoder will produce, but will also allow additional cases for leniency: -->
+    解码器将接收编码器生成的对应的格式，下面是以下例外：
+    <ul>
+        <!-- <li>atoms other than true, false, null will be considered UTF-8 strings (even as a proplist key)</li> -->
+        <li>ture,false,null 原子将会被转化成 utf-8 格式的字符串</li>
+        <!-- <li>{json, IoList} will insert IoList directly into the output with no validation</li> -->
+        <li>{json, IoList} 将被直接输出，不会做任何验证</li>
+        <!-- <li>{array, Array} will be encoded as Array (legacy mochijson style)</li> -->
+        <li>{array, Array} 将会被编码成数组</li>
+        <!-- <li>A non-empty raw proplist will be encoded as an object as long as the first pair does not have an atom key of json, struct, or array</li> -->
+        <li>一行非空数据将会被编码陈过一个对象（对象首部不会有一个原子作为 json、struct、array 的 key）</li>
+    </ul>
+    <h2><a name="types">数据类型</a></h2>
+
+    <h3 class="typedecl"><a name="type-encoder_option">encoder_option()</a></h3>
+    <p><tt>encoder_option() = <a href="#type-handler_option">handler_option()</a> | <a href="#type-utf8_option">utf8_option()</a></tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_array">json_array()</a></h3>
+    <p><tt>json_array() = [<a href="#type-json_term">json_term()</a>]</tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_eep18_object">json_eep18_object()</a></h3>
+    <p><tt>json_eep18_object() = {[{<a href="#type-json_string">json_string()</a>, <a href="#type-json_term">json_term()</a>}]}</tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_iolist">json_iolist()</a></h3>
+    <p><tt>json_iolist() = {json, iolist()}</tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_number">json_number()</a></h3>
+    <p><tt>json_number() = integer() | float()</tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_object">json_object()</a></h3>
+    <p><tt>json_object() = {struct, [{<a href="#type-json_string">json_string()</a>, <a href="#type-json_term">json_term()</a>}]}</tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_string">json_string()</a></h3>
+    <p><tt>json_string() = atom | binary()</tt></p>
+
+
+    <h3 class="typedecl"><a name="type-json_term">json_term()</a></h3>
+    <p><tt>json_term() = <a href="#type-json_string">json_string()</a> | <a href="#type-json_number">json_number()</a> | <a href="#type-json_array">json_array()</a> | <a href="#type-json_object">json_object()</a> | <a href="#type-json_eep18_object">json_eep18_object()</a> | <a href="#type-json_iolist">json_iolist()</a></tt></p>
+
+
+    <h3 class="typedecl"><a name="type-utf8_option">utf8_option()</a></h3>
+    <p><tt>utf8_option() = boolean()</tt></p>
+    <p>Emit unicode as utf8 (default - false)</p>
+
+    <h2><a name="index">函数索引</a></h2>
+    <table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index">
+        <tr>
+            <td valign="top"><a href="#decode-1">decode/1</a></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="#decode-2">decode/2</a></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="#decoder-1">decoder/1</a></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="#encode-1">encode/1</a></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td valign="top"><a href="#encoder-1">encoder/1</a></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <h2><a name="functions">函数详情</a></h2>
+
+    <h3 class="function"><a name="decode-1">decode/1</a></h3>
+    <div class="spec">
+        <p><tt>decode(S::iolist()) -&gt; <a href="#type-json_term">json_term()</a></tt><br></p>
+    </div>
+    <!-- <p>Decode the given iolist to Erlang terms.</p>  -->
+    <p>将 iolist 解码成erlang 项</p>
+
+    <h3 class="function"><a name="decode-2">decode/2</a></h3>
+    <div class="spec">
+        <p><tt>decode(S::iolist(), Options::[{format, proplist | eep18 | struct}]) -&gt; <a href="#type-json_term">json_term()</a></tt><br></p>
+    </div>
+    <!-- <p>Decode the given iolist to Erlang terms using the given object format for decoding, where proplist returns JSON objects as [{binary(), json_term()}] proplists, eep18 returns JSON objects as {[binary(), json_term()]}, and struct returns them as-is.</p> -->
+    <p>使用给定的对象格式把给定的 iolist 解码成 erlang 项。</p>
+
+    <h3 class="function"><a name="decoder-1">decoder/1</a></h3>
+    <div class="spec">
+        <p><tt>decoder(Options::[<a href="#type-decoder_option">decoder_option()</a>]) -&gt; function()</tt><br></p>
+    </div>
+    <!-- <p>Create a decoder/1 with the given options.</p> -->
+    <p>使用给定的选项来生成一个 decoder/1 数据</p>
+
+    <h3 class="function"><a name="encode-1">encode/1</a></h3>
+    <div class="spec">
+        <p><tt>encode(Any::<a href="#type-json_term">json_term()</a>) -&gt; iolist()</tt><br></p>
+    </div>
+    <!-- <p>Encode the given as JSON to an iolist.</p> -->
+    <p>将给定的 json 数据解码成一个 ioist 数据</p>
+
+    <h3 class="function"><a name="encoder-1">encoder/1</a></h3>
+    <div class="spec">
+        <p><tt>encoder(Options::[<a href="#type-encoder_option">encoder_option()</a>]) -&gt; function()</tt><br></p>
+    </div>
+    <!-- <p>Create an encoder/1 with the given options.</p> -->
+    <p>使用给定的选项来生成一个 encoder/1 数据</p>
+    <hr>
+
+    <div class="navbar"><a name="#navbar_bottom"></a>
+        <table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar">
+            <tr>
+                <td><a href="overview-summary.html" target="overviewFrame">概述</a></td>
+                <td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td>
+            </tr>
+        </table>
+    </div>
+    <p><i>EDoc 生成</i></p>
+</body>
+
+</html>
